@@ -1,0 +1,2 @@
+test_files\folder1\Joe_Strummer1.jpg
+test_files\folder2\Joe_Strummer2.jpg
