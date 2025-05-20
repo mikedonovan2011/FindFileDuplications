@@ -2,36 +2,29 @@ from pathlib import Path
 import hashlib
 import logging
 import sys
+from Configurations import Configurations
 from DuplicationRecords import DuplicationRecords
 
 
 def main(*root_folders):
-    max_file_size = 1073741824  # files larger than 1G will be ignored 1024*1024*1024
-    min_file_size = 10240 # files smaller than 10k might be thumbnails
 
     logging.basicConfig(filename='file_dupes.log', filemode='w', format='%(levelname)s: %(message)s',
                         encoding='utf-8', level=logging.INFO)
+    
+    config_file = Path.cwd() / 'config.ini'
+    configs = Configurations(config_file)
 
-    duplication_records = DuplicationRecords(delete_folders_first=True)
+    duplication_records = DuplicationRecords(delete_folders_first=configs.clean_up)
 
     for folder in root_folders:
         if not Path(folder).is_dir():
             logging.warning(f'{folder} does not exist')
-            print(f'{folder} does not exist')
             continue
         logging.info(f'Looking at files in {folder}')
         file_paths = Path(folder).glob("**/*")  # gives a generator with all sub-folders and files
 
         for path in file_paths:
-            if path.suffix not in [".jpg", ".JPG", ".JPEG", ".jpeg", ".bmp", ".BMP", ".png", ".PNG"]:
-                continue
-            # if not path.is_file():
-            #     continue
-            # if path.stat().st_size > max_file_size:
-            #     logging.info(f'Skipping file {path} because its size is > {max_file_size}')
-            #     continue
-            if path.stat().st_size < min_file_size:
-                logging.info(f'Skipping file {path} because its size is < {min_file_size}')
+            if skip_file(path, configs):
                 continue
             try:
                 with path.open("rb") as file_handle:
@@ -45,5 +38,17 @@ def main(*root_folders):
     logging.info('All done')
 
 
+def skip_file(filepath, configs):
+    if filepath.suffix not in configs.supported_file_types:
+        return True
+    if filepath.stat().st_size > configs.max_file_size:
+        logging.info(f'Skipping file {filepath} because its size is > {configs.max_file_size}')
+        return True
+    if filepath.stat().st_size < configs.min_file_size:
+        logging.info(f'Skipping file {filepath} because its size is < {configs.min_file_size}')
+        return True
+    return False
+
+
 if __name__ == '__main__':
-    main("test_files\\folder1", "test_files\\folder2")
+    main("tests\\test_files")

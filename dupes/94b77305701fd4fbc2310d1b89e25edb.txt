@@ -1,0 +1,2 @@
+tests\test_files\Jaguar.jpg
+tests\test_files\folder2\Jaguar2.jpg

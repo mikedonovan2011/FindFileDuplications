@@ -1,2 +1,3 @@
-test_files\folder1\dice1.png
-test_files\folder2\dice2.png
+tests\test_files\dice.png
+tests\test_files\folder1\dice1.png
+tests\test_files\folder2\dice2.png
