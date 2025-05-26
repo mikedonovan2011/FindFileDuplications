@@ -9,7 +9,6 @@ class Configurations:
         self.config = configparser.ConfigParser()
         self.load_config()
         
-        
     def load_config(self):
         if not self.config.read(self.config_file):
             logging.critical(f'Configuration file {self.config_file} not found. Exiting')
@@ -18,11 +17,11 @@ class Configurations:
 
     @property
     def max_file_size(self):
-        return int(self.config['file_sizes']['max_file_size'])
+        return self.config['file_sizes'].getint('max_file_size', 1073741824)  # 1 GiB
     
     @property
     def min_file_size(self):
-        return int(self.config['file_sizes']['min_file_size'])  
+        return self.config['file_sizes'].getint('min_file_size', 0)
     
     @property
     def supported_file_types(self):

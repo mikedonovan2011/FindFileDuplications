@@ -1,9 +1,8 @@
 from pathlib import Path
-import hashlib
 import logging
-import sys
 from Configurations import Configurations
 from DuplicationRecords import DuplicationRecords
+from FoldersForOutput import FoldersForOutput
 
 
 def main(*root_folders):
@@ -14,7 +13,8 @@ def main(*root_folders):
     config_file = Path.cwd() / 'config.ini'
     configs = Configurations(config_file)
 
-    duplication_records = DuplicationRecords(delete_folders_first=configs.clean_up)
+    folders_this_run = FoldersForOutput(delete_folders_previous_run=configs.clean_up)
+    duplication_records = DuplicationRecords(folders_this_run.folder_paths)
 
     for folder in root_folders:
         if not Path(folder).is_dir():
@@ -24,16 +24,8 @@ def main(*root_folders):
         file_paths = Path(folder).glob("**/*")  # gives a generator with all sub-folders and files
 
         for path in file_paths:
-            if skip_file(path, configs):
-                continue
-            try:
-                with path.open("rb") as file_handle:
-                    file_hash = hashlib.file_digest(file_handle, "md5").hexdigest()
-                    duplication_records.add_file_information(path, file_hash)
-            except PermissionError as e:
-                logging.critical(e, exc_info=True)
-                logging.critical(f'Cannot access {path}')
-                sys.exit(f'Exiting because of permission error with {path}')
+            if not skip_file(path, configs):
+                duplication_records.analyze_file(path)
 
     logging.info('All done')
 
