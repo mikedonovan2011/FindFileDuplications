@@ -1,7 +1,7 @@
 # FindFileDuplications
 Finds files (i.e. pics) that are duplicate but might have different filenames and might be in totally different places in the folders you specify.
 
-You can specify a number of folders as your inputs.
+You can specify a number of folders as your inputs. All files in all folders and sub-folders are analyzed. If the file of a particular (configured) type, it is hashed.
 
 If the hash hasn't been seen yet, a file is created in a "non-dupes" folder with:
     a) filename of <hash>.txt, 

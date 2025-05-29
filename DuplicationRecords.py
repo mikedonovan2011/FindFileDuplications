@@ -11,7 +11,7 @@ class DuplicationRecords:
 
         self.path_for_records = paths
 
-    def _calculate_hash(self, filepath):
+    def _calculate_hash(self, filepath: Path) -> str:
         try:
             with filepath.open("rb") as file_handle:
                 file_hash = hashlib.file_digest(file_handle, "md5").hexdigest()
@@ -21,7 +21,7 @@ class DuplicationRecords:
             sys.exit(f'Exiting because of permission error with {filepath}')
         return file_hash
        
-    def analyze_file(self, file_path):
+    def analyze_file(self, file_path: Path) -> None:
         
         record_filename = self._calculate_hash(file_path) + ".txt"
         record_file_dupes = self.path_for_records.dupes / record_filename
@@ -40,8 +40,8 @@ class DuplicationRecords:
 
         self._write_record(record_file_nondupes, file_path)
 
-    # @staticmethod
-    def _write_record(self, record_file, file):
+    @staticmethod
+    def _write_record(record_file: Path, file: Path):
 
         try:
             with record_file.open("a", encoding='utf-8') as f:
@@ -51,8 +51,8 @@ class DuplicationRecords:
             logging.critical(e, exc_info=True)
             logging.critical(f'Cannot write to {record_file}')
 
-    # @staticmethod
-    def _move_record_file(self, source, target):
+    @staticmethod
+    def _move_record_file(source: Path, target: Path):
 
         logging.info(f'Moving file from {source} to {target}')
         try:

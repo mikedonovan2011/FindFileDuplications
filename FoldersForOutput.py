@@ -4,11 +4,11 @@ import sys
 import logging
 from collections import namedtuple
 
+Folders = namedtuple('Folders', ['non_dupes', 'dupes'])
 
 class FoldersForOutput:
-    def __init__(self, path=Path.cwd(), delete_folders_previous_run=True):
+    def __init__(self, path=Path.cwd(), delete_folders_previous_run: bool = True):
 
-        Folders = namedtuple('Folders', ['non_dupes', 'dupes'])
         self.folders = Folders(path / "non_dupes", path / "dupes")  
         self.delete_folders_previous_run= delete_folders_previous_run
 
@@ -42,5 +42,5 @@ class FoldersForOutput:
                 sys.exit(f'Exiting because of permission error with {folder}')
 
     @property
-    def folder_paths(self):
+    def folder_paths(self) -> Folders:
         return self.folders  
