@@ -11,8 +11,8 @@ class Configurations:
         
     def load_config(self):
         if not self.config.read(self.config_file):
-            logging.critical(f'Configuration file {self.config_file} not found. Exiting')
-            sys.exit('Exiting because of critical error')
+            logging.critical(f'Configuration file {self.config_file} not found. Exiting.')
+            sys.exit('Exiting because of critical error.')
         logging.info(f'Configuration file {self.config_file} loaded successfully.') 
 
     @property
@@ -25,7 +25,8 @@ class Configurations:
     
     @property
     def supported_file_types(self):
-        file_types = self.config['supported_files']['file_extensions']
+        file_types = self.config['supported_files'].get('file_extensions', \
+                                ".jpg,.JPG,.jpeg,.JPEG,.bmp,.BMP,.png,.PNG")
         return file_types.split(',')
     
     @property

@@ -30,7 +30,7 @@ def main(*root_folders):
     logging.info('All done')
 
 
-def skip_file(filepath, configs):
+def skip_file(filepath: Path, configs: Configurations):
     if filepath.suffix not in configs.supported_file_types:
         return True
     if filepath.stat().st_size > configs.max_file_size:
