@@ -2,3 +2,11 @@ tests\test_files\Joe_Strummer.jpg
 tests\test_files\Joe_Strummer_0.jpg
 tests\test_files\folder1\Joe_Strummer1.jpg
 tests\test_files\folder2\Joe_Strummer2.jpg
+tests\test_files\Joe_Strummer.jpg
+tests\test_files\Joe_Strummer_0.jpg
+tests\test_files\folder1\Joe_Strummer1.jpg
+tests\test_files\folder2\Joe_Strummer2.jpg
+tests\test_files\Joe_Strummer.jpg
+tests\test_files\Joe_Strummer_0.jpg
+tests\test_files\folder1\Joe_Strummer1.jpg
+tests\test_files\folder2\Joe_Strummer2.jpg

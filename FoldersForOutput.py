@@ -17,7 +17,8 @@ class FoldersForOutput:
     def _create_folders(self):
 
         if self.delete_folders_previous_run:
-            self._clean_up_records()
+            if not self._clean_up_records():
+                raise Exception('Cannot clean up the folders for the records.')
 
         for path in (self.folders):
             logging.info(f'Creating folder {path} for the records.')
@@ -31,15 +32,17 @@ class FoldersForOutput:
     def _clean_up_records(self):
 
         for folder in (self.folders):
+            if not folder.exists():
+                logging.info(f'No folder {folder} to remove')
+                continue
             try:
                 shutil.rmtree(folder)
-                logging.info(f'Removed the folders {folder} and all contents')
-            except FileNotFoundError:
-                logging.info(f'No folder {folder} to remove')
+                logging.info(f'Removed the folder {folder} with its contents')               
             except PermissionError as e:
                 logging.critical(e, exc_info=True)
-                logging.critical(f'Permission issue in {folder}')
-                sys.exit(f'Exiting because of permission error with {folder}')
+                logging.critical(f'Could not remove the folder {folder} with its contents')
+                return False
+            return True
 
     @property
     def folder_paths(self) -> Folders:

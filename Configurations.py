@@ -1,19 +1,24 @@
 import configparser
 import logging
-import sys
+
 
 class Configurations:
 
     def __init__(self, config_file):
         self.config_file = config_file
         self.config = configparser.ConfigParser()
-        self.load_config()
+        if not self.config_file.exists():
+            raise FileNotFoundError(f'configuration file {self.config_file} not found')
+        self._load_config()
+
         
-    def load_config(self):
-        if not self.config.read(self.config_file):
-            logging.critical(f'Configuration file {self.config_file} not found. Exiting.')
-            sys.exit(f'Critical error. Configuration file {self.config_file} not found. Exiting')
-        logging.info(f'Configuration file {self.config_file} loaded successfully.') 
+    def _load_config(self):
+        try:
+            self.config.read(self.config_file)
+            logging.info(f'Configuration file {self.config_file} loaded successfully.') 
+        except (OSError, configparser.ParsingError) as e:
+            logging.error(f'***Failed to load configuration file {self.config_file}: {e}')
+            raise RuntimeError(f'Configuration file {self.config_file} not readable') from e
 
     @property
     def max_file_size(self) -> int:
