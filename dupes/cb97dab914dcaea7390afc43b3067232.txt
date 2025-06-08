@@ -4,3 +4,5 @@ tests\test_files\Albert_Einstein.jpg
 tests\test_files\folder1\Albert_Einstein_1.jpg
 tests\test_files\Albert_Einstein.jpg
 tests\test_files\folder1\Albert_Einstein_1.jpg
+tests\test_files\Albert_Einstein.jpg
+tests\test_files\folder1\Albert_Einstein_1.jpg

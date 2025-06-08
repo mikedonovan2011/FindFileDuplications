@@ -10,7 +10,7 @@ def main(*root_folders):
     logging.basicConfig(filename='file_dupes.log', filemode='w', format='%(levelname)s: %(message)s',
                         encoding='utf-8', level=logging.INFO)
     
-    config_file = Path.cwd() / 'config.iniW'
+    config_file = Path.cwd() / 'config.ini'
     try:
         configs = Configurations(config_file)
     except Exception as e:
