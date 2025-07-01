@@ -8,7 +8,7 @@ import sys
 def main(*root_folders):
 
     logging.basicConfig(filename='file_dupes.log', filemode='w', format='%(levelname)s: %(message)s',
-                        encoding='utf-8', level=logging.INFO)
+                        encoding='utf-8', level=logging.DEBUG)
     
     config_file = Path.cwd() / 'config.ini'
     try:
@@ -36,14 +36,15 @@ def main(*root_folders):
 
 def skip_file(filepath: Path, configs: Configurations):
     if filepath.suffix not in configs.supported_file_types:
+        logging.debug(f'Skipping file {filepath} because its type is not supported')
         return True
-    if filepath.stat().st_size > configs.max_file_size:
-        logging.info(f'Skipping file {filepath} because its size is > {configs.max_file_size}')
-        return True
-    if filepath.stat().st_size < configs.min_file_size:
-        logging.info(f'Skipping file {filepath} because its size is < {configs.min_file_size}')
-        return True
-    return False
+    
+    file_size = filepath.stat().st_size
+    if configs.min_file_size <= file_size <= configs.max_file_size:
+        return False
+    logging.info(f'Skipping file {filepath} because its size is {configs.min_file_size}')
+    return True
+
 
 
 if __name__ == '__main__':

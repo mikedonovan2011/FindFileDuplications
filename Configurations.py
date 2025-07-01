@@ -8,7 +8,9 @@ class Configurations:
         self.config_file = config_file
         self.config = configparser.ConfigParser()
         if not self.config_file.exists():
-            raise FileNotFoundError(f'configuration file {self.config_file} not found')
+            message = f'Configuration file {self.config_file} not found.'
+            logging.critical(message)
+            raise FileNotFoundError(message)
         self._load_config()
 
         
@@ -17,7 +19,7 @@ class Configurations:
             self.config.read(self.config_file)
             logging.info(f'Configuration file {self.config_file} loaded successfully.') 
         except (OSError, configparser.ParsingError) as e:
-            logging.error(f'***Failed to load configuration file {self.config_file}: {e}')
+            logging.error(f'Failed to load configuration file {self.config_file}: {e}')
             raise RuntimeError(f'Configuration file {self.config_file} not readable') from e
 
     @property

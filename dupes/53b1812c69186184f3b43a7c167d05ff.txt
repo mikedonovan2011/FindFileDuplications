@@ -1,0 +1,2 @@
+tests\test_files\spaniel-dog.bmp
+tests\test_files\folder1\spaniel-dog1.bmp
