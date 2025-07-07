@@ -1,5 +1,6 @@
 import configparser
 import logging
+from pathlib import Path
 
 
 class Configurations:
@@ -13,7 +14,7 @@ class Configurations:
             raise FileNotFoundError(message)
         self._load_config()
 
-        
+
     def _load_config(self):
         try:
             self.config.read(self.config_file)
@@ -39,3 +40,14 @@ class Configurations:
     @property
     def clean_up(self) -> bool:
         return self.config['clean_up_previous_run'].getboolean('clean_up', True) 
+    
+    @property
+    def delete_duplicate_file(self) -> bool:
+        return self.config['delete_duplicate_file'].getboolean('delete', False)
+    
+    @property
+    def folders_to_scan(self) -> list[Path]:
+        folders_to_scan = self.config['folders_to_scan'].get('folders', '').split(',')
+        return [Path(folder.strip()) for folder in folders_to_scan if folder.strip()]
+
+    

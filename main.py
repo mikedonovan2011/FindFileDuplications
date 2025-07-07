@@ -5,10 +5,10 @@ from DuplicationRecords import DuplicationRecords
 from FoldersForOutput import FoldersForOutput
 import sys
 
-def main(*root_folders):
+def main():
 
     logging.basicConfig(filename='file_dupes.log', filemode='w', format='%(levelname)s: %(message)s',
-                        encoding='utf-8', level=logging.DEBUG)
+                        encoding='utf-8', level=logging.WARNING)
     
     config_file = Path.cwd() / 'config.ini'
     try:
@@ -20,12 +20,14 @@ def main(*root_folders):
     folders_this_run = FoldersForOutput(delete_folders_previous_run=configs.clean_up)
     duplication_records = DuplicationRecords(folders_this_run.folder_paths)
 
-    for folder in root_folders:
-        if not Path(folder).is_dir():
+    folders_to_scan = configs.folders_to_scan
+
+    for folder in folders_to_scan:
+        if folder.is_dir():
             logging.warning(f'{folder} does not exist')
             continue
         logging.info(f'Looking at files in {folder}')
-        file_paths = Path(folder).glob("**/*")  # gives a generator with all sub-folders and files
+        file_paths = folder.glob("**/*")  # gives a generator with all sub-folders and files
 
         for path in file_paths:
             if not skip_file(path, configs):
@@ -48,4 +50,6 @@ def skip_file(filepath: Path, configs: Configurations):
 
 
 if __name__ == '__main__':
-    main("tests\\test_files")
+    
+    main()
+    
