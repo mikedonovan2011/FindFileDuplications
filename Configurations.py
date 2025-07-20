@@ -5,13 +5,16 @@ from pathlib import Path
 
 class Configurations:
 
-    def __init__(self, config_file):
-        self.config_file = config_file
-        self.config = configparser.ConfigParser()
+    def __init__(self):
+
+        self.config_file = Path.cwd() / 'config.ini'
+
         if not self.config_file.exists():
             message = f'Configuration file {self.config_file} not found.'
             logging.critical(message)
             raise FileNotFoundError(message)
+        
+        self.config = configparser.ConfigParser()
         self._load_config()
 
 
@@ -20,7 +23,7 @@ class Configurations:
             self.config.read(self.config_file)
             logging.info(f'Configuration file {self.config_file} loaded successfully.') 
         except (OSError, configparser.ParsingError) as e:
-            logging.error(f'Failed to load configuration file {self.config_file}: {e}')
+            logging.critical(f'Failed to load configuration file {self.config_file}: {e}')
             raise RuntimeError(f'Configuration file {self.config_file} not readable') from e
 
     @property
@@ -38,7 +41,7 @@ class Configurations:
         return file_types.split(',')
     
     @property
-    def clean_up(self) -> bool:
+    def clean_up_previous_run(self) -> bool:
         return self.config['clean_up_previous_run'].getboolean('clean_up', True) 
     
     @property
@@ -48,6 +51,10 @@ class Configurations:
     @property
     def folders_to_scan(self) -> list[Path]:
         folders_to_scan = self.config['folders_to_scan'].get('folders', '').split(',')
-        return [Path(folder.strip()) for folder in folders_to_scan if folder.strip()]
+        return [Path(folder.strip()).resolve() for folder in folders_to_scan if folder.strip()]
 
-    
+    @property
+    def location_for_scan_results(self) -> Path:
+        location = self.config['location_for_scan_results'].get('location', 'scan_results')
+        return Path(location).resolve()
+        

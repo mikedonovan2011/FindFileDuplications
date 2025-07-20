@@ -2,28 +2,28 @@ from pathlib import Path
 import logging
 from Configurations import Configurations
 from DuplicationRecords import DuplicationRecords
-from FoldersForOutput import FoldersForOutput
+from FoldersForScanResults import FoldersForScanResults
 import sys
 
 def main():
 
     logging.basicConfig(filename='file_dupes.log', filemode='w', format='%(levelname)s: %(message)s',
-                        encoding='utf-8', level=logging.WARNING)
+                        encoding='utf-8', level=logging.DEBUG)
     
-    config_file = Path.cwd() / 'config.ini'
     try:
-        configs = Configurations(config_file)
+        configs = Configurations()
     except Exception as e:
         logging.critical(e, exc_info=True)
         sys.exit(f'Exiting because of critical error reading config: {e}')
 
-    folders_this_run = FoldersForOutput(delete_folders_previous_run=configs.clean_up)
+    folders_this_run = FoldersForScanResults(configs)
+    folders_this_run.set_up_folders()
     duplication_records = DuplicationRecords(folders_this_run.folder_paths)
 
     folders_to_scan = configs.folders_to_scan
 
     for folder in folders_to_scan:
-        if folder.is_dir():
+        if folder.is_dir() is False:
             logging.warning(f'{folder} does not exist')
             continue
         logging.info(f'Looking at files in {folder}')
@@ -44,7 +44,7 @@ def skip_file(filepath: Path, configs: Configurations):
     file_size = filepath.stat().st_size
     if configs.min_file_size <= file_size <= configs.max_file_size:
         return False
-    logging.info(f'Skipping file {filepath} because its size is {configs.min_file_size}')
+    logging.info(f'Skipping file {filepath} because its size is {file_size}')
     return True
 
 
