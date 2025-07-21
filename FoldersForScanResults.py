@@ -51,7 +51,7 @@ class FoldersForScanResults:
             logging.info(f'Creating folder {path} for the records.')
             print(path)
             try:
-                Path.mkdir(path, exist_ok=True)
+                Path.mkdir(path, exist_ok=True, parents=True)
             except Exception as e:
                 logging.critical(f'Cannot create the folder {path}')
                 raise RuntimeError('Cannot create the folder for scan results') from e
