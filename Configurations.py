@@ -17,7 +17,6 @@ class Configurations:
         self.config = configparser.ConfigParser()
         self._load_config()
 
-
     def _load_config(self):
         try:
             self.config.read(self.config_file)

@@ -3,23 +3,50 @@ import hashlib
 import logging
 import sys
 from collections import namedtuple
+from Configurations import Configurations
 
 
 class DuplicationRecords:
 
-    def __init__(self, paths):
+    def __init__(self, paths, configs: Configurations):
 
         self.path_for_records = paths
+        self.configs = configs
 
     def _calculate_hash(self, filepath: Path) -> str:
+        
         try:
             with filepath.open("rb") as file_handle:
                 file_hash = hashlib.file_digest(file_handle, "md5").hexdigest()
         except PermissionError as e:
             raise RuntimeError(f'Cannot access {filepath}: {e}') from e
         return file_hash
+    
+    def analyze_folder(self, folder_path: Path) -> None:
+        
+        if folder_path.is_dir() is False:
+            logging.warning(f'{folder_path} does not exist')
+            return
+
+        logging.info(f'Analyzing files in {folder_path}')
+        file_paths = folder_path.glob("**/*")   # gives a generator with all sub-folders and files
+
+        for path in file_paths:
+            if not self._skip_file(path):
+                self._analyze_file(path)
+
+    def _skip_file(self, filepath: Path):
+        if filepath.suffix not in self.configs.supported_file_types:
+            logging.debug(f'Skipping file {filepath} because its type is not supported')
+            return True
+    
+        file_size = filepath.stat().st_size
+        if self.configs.min_file_size <= file_size <= self.configs.max_file_size:
+            return False
+        logging.info(f'Skipping file {filepath} because its size is {file_size}')
+        return True
        
-    def analyze_file(self, file_path: Path) -> None:
+    def _analyze_file(self, file_path: Path) -> None:
         
         try:
             record_filename = self._calculate_hash(file_path) + ".txt"
