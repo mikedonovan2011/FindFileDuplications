@@ -1,7 +1,6 @@
 import shutil
-from pathlib import Path
-import sys
 import logging
+from pathlib import Path
 from collections import namedtuple
 from Configurations import Configurations
 
@@ -48,14 +47,10 @@ class FoldersForScanResults:
     def _create_folders(self):
          
         for path in self.folders:
-            logging.info(f'Creating folder {path} for the records.')
-            print(path)
-            try:
-                Path.mkdir(path, exist_ok=True, parents=True)
-            except Exception as e:
+            Path.mkdir(path, exist_ok=True, parents=True)
+            if not path.exists():
                 logging.critical(f'Cannot create the folder {path}')
-                raise RuntimeError('Cannot create the folder for scan results') from e
-            
+                raise RuntimeError('Cannot create the folder for scan results')
     
     @property
     def folder_paths(self) -> Folders:

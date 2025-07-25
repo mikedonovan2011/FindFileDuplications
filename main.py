@@ -1,5 +1,5 @@
-import logging
 import sys
+import logging
 from Configurations import Configurations
 from DuplicationRecords import DuplicationRecords
 from FoldersForScanResults import FoldersForScanResults

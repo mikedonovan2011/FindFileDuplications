@@ -1,7 +1,6 @@
-from pathlib import Path
 import hashlib
 import logging
-import sys
+from pathlib import Path
 from collections import namedtuple
 from Configurations import Configurations
 
@@ -24,12 +23,12 @@ class DuplicationRecords:
     
     def analyze_folder(self, folder_path: Path) -> None:
         
-        if folder_path.is_dir() is False:
+        if not folder_path.is_dir():
             logging.warning(f'{folder_path} does not exist')
             return
 
         logging.info(f'Analyzing files in {folder_path}')
-        file_paths = folder_path.glob("**/*")   # gives a generator with all sub-folders and files
+        file_paths = folder_path.rglob("*")   # gives a generator with all sub-folders and files
 
         for path in file_paths:
             if not self._skip_file(path):
@@ -50,8 +49,8 @@ class DuplicationRecords:
         
         try:
             record_filename = self._calculate_hash(file_path) + ".txt"
-        except PermissionError as e:
-            logging.error(f'Cannot create hash for {file_path}: {e}')
+        except RuntimeError as e:
+            logging.error(e)
             return
         
         record_file_dupes = self.path_for_records.dupes / record_filename
