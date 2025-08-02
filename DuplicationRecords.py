@@ -36,7 +36,7 @@ class DuplicationRecords:
 
     def _skip_file(self, filepath: Path):
         if filepath.suffix not in self.configs.supported_file_types:
-            logging.debug(f'Skipping file {filepath} because its type is not supported')
+            logging.debug(f'Skipping file (or dir) {filepath} because its type is not supported')
             return True
     
         file_size = filepath.stat().st_size
@@ -55,19 +55,25 @@ class DuplicationRecords:
         
         record_file_dupes = self.path_for_records.dupes / record_filename
         record_file_nondupes = self.path_for_records.non_dupes / record_filename
+        record_file_deleted = self.path_for_records.deleted_dupes / record_filename
         
-        if record_file_dupes.exists():
-            logging.info(f'Duplicate found for: {file_path}')
-            self._write_record(record_file_dupes, file_path)
-            return
-        
-        if record_file_nondupes.exists():
-            logging.info(f'Duplicate found for: {file_path}')
-            self._write_record(record_file_nondupes, file_path)
-            self._move_record_file(record_file_nondupes, record_file_dupes)
-            return
+        if not self.configs.delete_duplicate_file:
 
-        self._write_record(record_file_nondupes, file_path)
+            if record_file_dupes.exists():
+                logging.info(f'Multiple duplicates found for: {file_path}')
+                self._write_record(record_file_dupes, file_path)
+                return
+            
+            if record_file_nondupes.exists():
+                logging.info(f'One duplicate found for: {file_path}')
+                self._write_record(record_file_nondupes, file_path)
+                self._move_record_file(record_file_nondupes, record_file_dupes)
+                return
+
+            self._write_record(record_file_nondupes, file_path)
+
+        else:
+            print("Not implemented yet, but this is where the deletion logic would go")
 
     @staticmethod
     def _write_record(record_file: Path, file: Path):
