@@ -19,6 +19,9 @@ def main():
 
     duplication_records = DuplicationRecords(folders_this_run.folder_paths, configs)
 
+    if not configs.clean_up_previous_run:
+        duplication_records.repair_nondupes()
+
     for folder in configs.folders_to_scan:
         logging.info(f'Analyzing folder: {folder}')
         duplication_records.analyze_folder(folder)
