@@ -37,12 +37,8 @@ class FoldersForScanResults:
 
         for folder in self.folders:
             if folder.exists():
-                try:
-                    shutil.rmtree(folder)
-                    logging.info(f'Removed the folder {folder} with its contents')               
-                except PermissionError as e:
-                    logging.critical(f'Could not remove the folder {folder} with its contents: {e}', 
-                                    exc_info=True)
+                shutil.rmtree(folder)
+                logging.info(f'Removed the folder {folder} with its contents')
             else:
                 logging.info(f'No folder {folder} to remove')
 

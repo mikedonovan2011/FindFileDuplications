@@ -15,7 +15,11 @@ def main():
         sys.exit(f'Exiting because of critical error reading config: {e}')
 
     folders_this_run = FoldersForScanResults(configs)
-    folders_this_run.set_up_folders()
+    try:
+        folders_this_run.set_up_folders()
+    except RuntimeError as e:
+        logging.critical(e, exc_info=True)
+        sys.exit(f'Exiting because of critical error setting up folders: {e}')
 
     duplication_records = DuplicationRecords(folders_this_run.folder_paths, configs)
 
