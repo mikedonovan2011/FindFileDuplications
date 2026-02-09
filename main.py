@@ -3,6 +3,7 @@ import logging
 from Configurations import Configurations
 from DuplicationRecords import DuplicationRecords
 from FoldersForScanResults import FoldersForScanResults
+from RecordRepair import RecordRepair
 
 def main():
 
@@ -25,7 +26,8 @@ def main():
 
     try:
         if not configs.clean_up_previous_run:
-            duplication_records.repair_nondupes()
+            record_repair = RecordRepair(folders_this_run.folder_paths)
+            record_repair.repair()
 
         for folder in configs.folders_to_scan:
             logging.info(f'Analyzing folder: {folder}')

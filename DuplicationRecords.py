@@ -21,17 +21,6 @@ class DuplicationRecords:
             raise RuntimeError(f'Cannot access {filepath}: {e}') from e
         return file_hash
     
-    def repair_nondupes(self) -> None:
-
-        logging.info('Checking non_dupes records for interrupted duplicates')
-        for record_file in self.path_for_records.non_dupes.glob("*.txt"):
-            with record_file.open("r", encoding='utf-8') as f:
-                line_count = sum(1 for line in f if line.strip())
-            if line_count >= 2:
-                target = self.path_for_records.dupes / record_file.name
-                logging.info(f'Repairing: {record_file.name} has {line_count} paths, moving to dupes')
-                self._move_record_file(record_file, target)
-
     def analyze_folder(self, folder_path: Path) -> None:
         
         if not folder_path.is_dir():
