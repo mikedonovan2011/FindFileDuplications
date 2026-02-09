@@ -20,8 +20,9 @@ class Configurations:
 
     def _load_config(self):
         try:
-            self.config.read(self.config_file)
-            logging.info(f'Configuration file {self.config_file} loaded successfully.') 
+            with open(self.config_file, encoding='utf-8') as f:
+                self.config.read_file(f)
+            logging.info(f'Configuration file {self.config_file} loaded successfully.')
         except (OSError, configparser.ParsingError) as e:
             logging.critical(f'Failed to load configuration file {self.config_file}: {e}')
             raise RuntimeError(f'Configuration file {self.config_file} not readable') from e
