@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Duplicate file detection utility. Scans configured directories recursively, computes MD5 hashes, and categorizes files as unique or duplicate by writing text-based record files. Currently targets image files but the supported types are configurable. Licensed under GPLv3.
+Duplicate file detection utility. Scans configured directories recursively, computes SHA-256 hashes, and categorizes files as unique or duplicate by writing text-based record files. Currently targets image files but the supported types are configurable. Licensed under GPLv3.
 
 ## Commands
 
@@ -41,7 +41,7 @@ Four modules with clear separation of concerns:
 
 **`FoldersForScanResults.py`** — `FoldersForScanResults` class. Manages the output directory structure. Uses a `Folders` namedtuple with three fields: `non_dupes`, `dupes`, `deleted_dupes`. Handles creation and optional cleanup of these folders under the configured `location_for_scan_results`. Cleanup errors propagate up rather than being swallowed per-folder.
 
-**`DuplicationRecords.py`** — `DuplicationRecords` class. Core logic. For each folder, recursively walks files via `rglob("*")`, filters by extension and size, computes MD5 hash, then:
+**`DuplicationRecords.py`** — `DuplicationRecords` class. Core logic. For each folder, recursively walks files via `rglob("*")`, filters by extension and size, computes SHA-256 hash, then:
 1. If hash record exists in `dupes/` — append path (3rd+ occurrence)
 2. If hash record exists in `non_dupes/` — append path, then move record to `dupes/` (2nd occurrence)
 3. Otherwise — create new record in `non_dupes/` (1st occurrence)

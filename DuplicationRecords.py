@@ -16,7 +16,7 @@ class DuplicationRecords:
         
         try:
             with filepath.open("rb") as file_handle:
-                file_hash = hashlib.file_digest(file_handle, "md5").hexdigest()
+                file_hash = hashlib.file_digest(file_handle, "sha256").hexdigest()
         except PermissionError as e:
             raise RuntimeError(f'Cannot access {filepath}: {e}') from e
         return file_hash
