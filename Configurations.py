@@ -7,7 +7,7 @@ class Configurations:
 
     def __init__(self):
 
-        self.config_file = Path.cwd() / 'config.ini'
+        self.config_file = Path(__file__).resolve().parent / 'config.ini'
 
         if not self.config_file.exists():
             message = f'Configuration file {self.config_file} not found.'
@@ -16,6 +16,7 @@ class Configurations:
         
         self.config = configparser.ConfigParser()
         self._load_config()
+        self._validate_file_sizes()
 
     def _load_config(self):
         try:
@@ -24,6 +25,14 @@ class Configurations:
         except (OSError, configparser.ParsingError) as e:
             logging.critical(f'Failed to load configuration file {self.config_file}: {e}')
             raise RuntimeError(f'Configuration file {self.config_file} not readable') from e
+
+    def _validate_file_sizes(self):
+        if self.min_file_size < 0:
+            raise RuntimeError(f'min_file_size cannot be negative: {self.min_file_size}')
+        if self.max_file_size < 0:
+            raise RuntimeError(f'max_file_size cannot be negative: {self.max_file_size}')
+        if self.min_file_size >= self.max_file_size:
+            raise RuntimeError(f'min_file_size ({self.min_file_size}) must be less than max_file_size ({self.max_file_size})')
 
     @property
     def max_file_size(self) -> int:
