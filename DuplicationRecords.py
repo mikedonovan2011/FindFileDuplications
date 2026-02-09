@@ -18,6 +18,7 @@ class DuplicationRecords:
             with filepath.open("rb") as file_handle:
                 file_hash = hashlib.file_digest(file_handle, "sha256").hexdigest()
         except PermissionError as e:
+            logging.warning(f'Cannot access {filepath}: {e}')
             raise RuntimeError(f'Cannot access {filepath}: {e}') from e
         return file_hash
     
@@ -50,7 +51,7 @@ class DuplicationRecords:
         try:
             record_filename = self._calculate_hash(file_path) + ".txt"
         except RuntimeError as e:
-            logging.error(e)
+            logging.warning(e)
             return
         
         record_file_dupes = self.path_for_records.dupes / record_filename
@@ -83,7 +84,7 @@ class DuplicationRecords:
                 logging.debug(f'Recording info for {file} into file {record_file}')
                 f.write(str(file) + "\n")
         except Exception as e:
-            logging.critical(f'Cannot write to {record_file}')
+            logging.critical(f'Cannot write to {record_file}: {e}', exc_info=True)
             raise RuntimeError(f'Cannot write to {record_file}: {e}') from e
 
     @staticmethod
@@ -93,6 +94,5 @@ class DuplicationRecords:
         try:
             Path.rename(source, target)
         except Exception as e:
-            logging.critical(e, exc_info=True)
-            logging.critical(f'Cannot move file from {source} to {target}')
+            logging.critical(f'Cannot move file from {source} to {target}: {e}', exc_info=True)
             raise RuntimeError(f'Cannot move file from {source} to {target}') from e

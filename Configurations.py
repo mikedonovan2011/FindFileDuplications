@@ -12,7 +12,7 @@ class Configurations:
         if not self.config_file.exists():
             message = f'Configuration file {self.config_file} not found.'
             logging.critical(message)
-            raise FileNotFoundError(message)
+            raise RuntimeError(message)
         
         self.config = configparser.ConfigParser()
         self._load_config()
@@ -28,11 +28,17 @@ class Configurations:
 
     def _validate_file_sizes(self):
         if self.min_file_size < 0:
-            raise RuntimeError(f'min_file_size cannot be negative: {self.min_file_size}')
+            message = f'min_file_size cannot be negative: {self.min_file_size}'
+            logging.critical(message, exc_info=True)
+            raise RuntimeError(message)
         if self.max_file_size < 0:
-            raise RuntimeError(f'max_file_size cannot be negative: {self.max_file_size}')
+            message = f'max_file_size cannot be negative: {self.max_file_size}'
+            logging.critical(message, exc_info=True)
+            raise RuntimeError(message)
         if self.min_file_size >= self.max_file_size:
-            raise RuntimeError(f'min_file_size ({self.min_file_size}) must be less than max_file_size ({self.max_file_size})')
+            message = f'min_file_size ({self.min_file_size}) must be less than max_file_size ({self.max_file_size})'
+            logging.critical(message, exc_info=True)
+            raise RuntimeError(message)
 
     @property
     def max_file_size(self) -> int:

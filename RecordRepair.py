@@ -29,7 +29,7 @@ class RecordRepair:
         try:
             record_file.unlink()
         except Exception as e:
-            logging.critical(f'Cannot delete {record_file}')
+            logging.critical(f'Cannot delete {record_file}: {e}', exc_info=True)
             raise RuntimeError(f'Cannot delete {record_file}: {e}') from e
 
     @staticmethod
@@ -39,6 +39,5 @@ class RecordRepair:
         try:
             Path.rename(source, target)
         except Exception as e:
-            logging.critical(e, exc_info=True)
-            logging.critical(f'Cannot move file from {source} to {target}')
+            logging.critical(f'Cannot move file from {source} to {target}: {e}', exc_info=True)
             raise RuntimeError(f'Cannot move file from {source} to {target}') from e
