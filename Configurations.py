@@ -51,8 +51,9 @@ class Configurations:
     
     @property
     def supported_file_types(self) -> list[str]:
-        file_types = self.config['supported_files'].get('file_extensions', \
-                                ".jpg,.JPG,.jpeg,.JPEG,.bmp,.BMP,.png,.PNG")
+        file_types = self.config['supported_files'].get('file_extensions',
+                                ".jpg,.JPG,.jpeg,.JPEG,.bmp,.BMP,.png,.PNG,"
+                                ".svg,.SVG,.gif,.GIF,.webp,.WEBP")
         return [ft.strip() for ft in file_types.split(',')]
     
     @property
