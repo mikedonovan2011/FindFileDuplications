@@ -46,7 +46,7 @@ Four modules with clear separation of concerns:
 2. If hash record exists in `non_dupes/` — append path, then move record to `dupes/` (2nd occurrence)
 3. Otherwise — create new record in `non_dupes/` (1st occurrence)
 
-Record files are named `{md5_hash}.txt` and contain one file path per line.
+Record files are named `{sha256_hash}.txt` and contain one file path per line.
 
 When `clean_up_previous_run` is disabled, `repair_nondupes()` runs at startup to detect records stranded in `non_dupes/` with 2+ paths (from an interrupted previous run) and moves them to `dupes/`.
 
