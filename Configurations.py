@@ -5,9 +5,9 @@ from pathlib import Path
 
 class Configurations:
 
-    def __init__(self):
+    def __init__(self, config_file=None):
 
-        self.config_file = Path(__file__).resolve().parent / 'config.ini'
+        self.config_file = config_file or Path(__file__).resolve().parent / 'config.ini'
 
         if not self.config_file.exists():
             message = f'Configuration file {self.config_file} not found.'
