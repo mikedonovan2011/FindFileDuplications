@@ -25,7 +25,7 @@ def main():
     duplication_records = DuplicationRecords(folders_this_run.folder_paths, configs)
 
     try:
-        if not configs.clean_up_previous_run:
+        if configs.repair_records:
             record_repair = RecordRepair(folders_this_run.folder_paths)
             record_repair.repair()
 
