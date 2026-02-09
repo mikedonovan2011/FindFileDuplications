@@ -29,15 +29,15 @@ class Configurations:
     def _validate_file_sizes(self):
         if self.min_file_size < 0:
             message = f'min_file_size cannot be negative: {self.min_file_size}'
-            logging.critical(message, exc_info=True)
+            logging.critical(message)
             raise RuntimeError(message)
         if self.max_file_size < 0:
             message = f'max_file_size cannot be negative: {self.max_file_size}'
-            logging.critical(message, exc_info=True)
+            logging.critical(message)
             raise RuntimeError(message)
         if self.min_file_size >= self.max_file_size:
             message = f'min_file_size ({self.min_file_size}) must be less than max_file_size ({self.max_file_size})'
-            logging.critical(message, exc_info=True)
+            logging.critical(message)
             raise RuntimeError(message)
 
     @property
