@@ -17,6 +17,7 @@ class Configurations:
         self.config = configparser.ConfigParser()
         self._load_config()
         self._validate_file_sizes()
+        self._validate_folders_to_scan()
 
     def _load_config(self):
         try:
@@ -38,6 +39,12 @@ class Configurations:
             raise RuntimeError(message)
         if self.min_file_size >= self.max_file_size:
             message = f'min_file_size ({self.min_file_size}) must be less than max_file_size ({self.max_file_size})'
+            logging.critical(message)
+            raise RuntimeError(message)
+
+    def _validate_folders_to_scan(self):
+        if not self.folders_to_scan:
+            message = 'No folders to scan configured in config.ini'
             logging.critical(message)
             raise RuntimeError(message)
 
