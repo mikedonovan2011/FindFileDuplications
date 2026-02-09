@@ -1,4 +1,4 @@
-# Plan: Switch from MD5 to SHA-256 for collision resistance
+# Plan: Switch from MD5 to SHA-256 for collision resistance — DONE (commit 568c5e8)
 
 ## Context
 MD5 is not collision-resistant — it's possible (though unlikely in practice) for two different files to produce the same hash and be silently treated as duplicates. Switching to SHA-256 makes this cryptographically infeasible.
