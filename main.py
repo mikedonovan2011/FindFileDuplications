@@ -19,13 +19,17 @@ def main():
 
     duplication_records = DuplicationRecords(folders_this_run.folder_paths, configs)
 
-    if not configs.clean_up_previous_run:
-        duplication_records.repair_nondupes()
+    try:
+        if not configs.clean_up_previous_run:
+            duplication_records.repair_nondupes()
 
-    for folder in configs.folders_to_scan:
-        logging.info(f'Analyzing folder: {folder}')
-        duplication_records.analyze_folder(folder)
-        logging.info(f'Finished analyzing folder: {folder}')
+        for folder in configs.folders_to_scan:
+            logging.info(f'Analyzing folder: {folder}')
+            duplication_records.analyze_folder(folder)
+            logging.info(f'Finished analyzing folder: {folder}')
+    except RuntimeError as e:
+        logging.critical(e, exc_info=True)
+        sys.exit(f'Exiting because of critical error during scan: {e}')
 
     logging.info('All done')
 

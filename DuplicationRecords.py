@@ -106,3 +106,4 @@ class DuplicationRecords:
         except Exception as e:
             logging.critical(e, exc_info=True)
             logging.critical(f'Cannot move file from {source} to {target}')
+            raise RuntimeError(f'Cannot move file from {source} to {target}') from e
