@@ -1,4 +1,4 @@
-# Plan: Add integrity check for non_dupes records at startup
+# Plan: Add integrity check for non_dupes records at startup — DONE (commit 80ab472)
 
 ## Context
 If the process is interrupted between writing a path to a `non_dupes` record and moving it to `dupes`, a record with 2+ paths can be left stranded in `non_dupes`. This feature adds a self-healing check at startup that detects and fixes these inconsistencies.
