@@ -5,7 +5,7 @@ from collections import namedtuple
 from Configurations import Configurations
 
 
-Folders = namedtuple('Folders', ['non_dupes', 'dupes', 'deleted_dupes'])
+Folders = namedtuple('Folders', ['non_dupes', 'dupes', 'deleted_dupes', 'moved_duplicates'])
 
 class FoldersForScanResults:
 
@@ -13,9 +13,10 @@ class FoldersForScanResults:
 
         self.configs = configs
 
-        self.folders = Folders(self.configs.location_for_scan_results / "non_dupes", 
+        self.folders = Folders(self.configs.location_for_scan_results / "non_dupes",
                                self.configs.location_for_scan_results / "dupes",
-                               self.configs.location_for_scan_results / "deleted_dupes"
+                               self.configs.location_for_scan_results / "deleted_dupes",
+                               self.configs.location_for_scan_results / "moved_duplicates"
                                )  
         
     def set_up_folders(self) -> None:
