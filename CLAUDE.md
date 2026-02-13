@@ -42,14 +42,14 @@ Five modules with clear separation of concerns:
 
 **`FoldersForScanResults.py`** — `FoldersForScanResults` class. Manages the output directory structure. Uses a `RecordFolders` namedtuple with three fields: `non_dupes_records`, `dupes_records`, `moved_dupes_records`. The `moved_dupes_files` path is stored separately from `location_for_moved_dupes` config. Cleanup only wipes the three record folders, never `moved_dupes_files`. Cleanup errors propagate up rather than being swallowed per-folder.
 
-**`DuplicationRecords.py`** — `DuplicationRecords` class. Core logic. For each folder, recursively walks files via `rglob("*")`, filters by extension and size, computes SHA-256 hash, then:
+**`DuplicationRecords.py`** — `DuplicationRecords` class. Core logic. For each folder, recursively walks files via `rglob("*")`, filters by extension and size, computes SHA-256 hash, then dispatches to one of two mode-specific methods:
 
-*Normal mode* (`delete_duplicate_file = no`):
+*`_analyze_file_without_deletion`* (`delete_duplicate_file = no`):
 1. If hash record exists in `dupes_records/` — append path (3rd+ occurrence)
 2. If hash record exists in `non_dupes_records/` — append path, then move record to `dupes_records/` (2nd occurrence)
 3. Otherwise — create new record in `non_dupes_records/` (1st occurrence)
 
-*Delete mode* (`delete_duplicate_file = yes`):
+*`_analyze_file_with_deletion`* (`delete_duplicate_file = yes`):
 1. If hash record exists in `moved_dupes_records/` — move file to `moved_dupes_files/`, append to record (3rd+ occurrence)
 2. If hash record exists in `non_dupes_records/` — move file to `moved_dupes_files/`, create record in `moved_dupes_records/` (2nd occurrence)
 3. Otherwise — keep file, create new record in `non_dupes_records/` (1st occurrence)
