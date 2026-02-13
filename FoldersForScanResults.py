@@ -5,7 +5,7 @@ from collections import namedtuple
 from Configurations import Configurations
 
 
-Folders = namedtuple('Folders', ['non_dupes_records', 'dupes_records', 'moved_dupes_records', 'moved_dupes_files'])
+RecordFolders = namedtuple('RecordFolders', ['non_dupes_records', 'dupes_records', 'moved_dupes_records'])
 
 class FoldersForScanResults:
 
@@ -13,12 +13,13 @@ class FoldersForScanResults:
 
         self.configs = configs
 
-        self.folders = Folders(self.configs.location_for_scan_results / "non_dupes_records",
-                               self.configs.location_for_scan_results / "dupes_records",
-                               self.configs.location_for_scan_results / "moved_dupes_records",
-                               self.configs.location_for_scan_results / "moved_dupes_files"
-                               )  
-        
+        self.record_folders = RecordFolders(
+            self.configs.location_for_scan_results / "non_dupes_records",
+            self.configs.location_for_scan_results / "dupes_records",
+            self.configs.location_for_scan_results / "moved_dupes_records"
+        )
+        self.moved_dupes_files = self.configs.location_for_moved_dupes
+
     def set_up_folders(self) -> None:
 
         if self.configs.clean_up_previous_run:
@@ -33,10 +34,10 @@ class FoldersForScanResults:
         except RuntimeError as e:
             logging.critical(f'Cannot create folders for the records: {e}', exc_info=True)
             raise RuntimeError('Exiting because of critical error creating folders') from e
-        
+
     def _clean_up_records(self) -> None:
 
-        for folder in self.folders:
+        for folder in self.record_folders:
             if folder.exists():
                 shutil.rmtree(folder)
                 logging.info(f'Removed the folder {folder} with its contents')
@@ -44,13 +45,17 @@ class FoldersForScanResults:
                 logging.info(f'No folder {folder} to remove')
 
     def _create_folders(self):
-         
-        for path in self.folders:
+
+        for path in (*self.record_folders, self.moved_dupes_files):
             Path.mkdir(path, exist_ok=True, parents=True)
             if not path.exists():
                 logging.critical(f'Cannot create the folder {path}')
                 raise RuntimeError('Cannot create the folder for scan results')
-    
+
     @property
-    def folder_paths(self) -> Folders:
-        return self.folders  
+    def record_folder_paths(self) -> RecordFolders:
+        return self.record_folders
+
+    @property
+    def moved_dupes_files_path(self) -> Path:
+        return self.moved_dupes_files

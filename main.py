@@ -22,11 +22,13 @@ def main():
         logging.critical(e, exc_info=True)
         sys.exit(f'Exiting because of critical error setting up folders: {e}')
 
-    duplication_records = DuplicationRecords(folders_this_run.folder_paths, configs)
+    duplication_records = DuplicationRecords(folders_this_run.record_folder_paths,
+                                              folders_this_run.moved_dupes_files_path,
+                                              configs)
 
     try:
         if configs.repair_records:
-            record_repair = RecordRepair(folders_this_run.folder_paths)
+            record_repair = RecordRepair(folders_this_run.record_folder_paths)
             record_repair.repair()
 
         for folder in configs.folders_to_scan:

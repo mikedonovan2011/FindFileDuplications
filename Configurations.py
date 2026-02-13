@@ -84,4 +84,9 @@ class Configurations:
     def location_for_scan_results(self) -> Path:
         location = self.config['location_for_scan_results'].get('location', 'scan_results')
         return Path(location).resolve()
+
+    @property
+    def location_for_moved_dupes(self) -> Path:
+        location = self.config['location_for_moved_dupes'].get('location', 'moved_dupes_files')
+        return Path(location).resolve()
         

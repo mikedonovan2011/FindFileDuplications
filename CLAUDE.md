@@ -29,7 +29,8 @@ All runtime settings live in `config.ini` (loaded relative to `Configurations.py
 - `supported_files` — file extensions to process (whitespace around commas is stripped)
 - `file_sizes` — min/max byte thresholds for skipping files (validated at startup: non-negative, min < max)
 - `clean_up_previous_run` — whether to wipe previous output before starting
-- `delete_duplicate_file` — when `yes`, duplicates are moved to `moved_dupes_files/` for recovery instead of being left in place
+- `delete_duplicate_file` — when `yes`, duplicates are moved to the `location_for_moved_dupes` folder for recovery instead of being left in place
+- `location_for_moved_dupes` — where moved duplicate files are stored (separate from records, not cleaned up by `clean_up_previous_run`)
 
 ## Architecture
 
@@ -39,7 +40,7 @@ Five modules with clear separation of concerns:
 
 **`Configurations.py`** — `Configurations` class. Wraps `configparser` to read `config.ini`. Exposes all settings as typed properties (int, bool, list, Path). Resolves folder paths to absolute via `Path.resolve()`. Validates file size constraints at init.
 
-**`FoldersForScanResults.py`** — `FoldersForScanResults` class. Manages the output directory structure. Uses a `Folders` namedtuple with four fields: `non_dupes_records`, `dupes_records`, `moved_dupes_records`, `moved_dupes_files`. Handles creation and optional cleanup of these folders under the configured `location_for_scan_results`. Cleanup errors propagate up rather than being swallowed per-folder.
+**`FoldersForScanResults.py`** — `FoldersForScanResults` class. Manages the output directory structure. Uses a `RecordFolders` namedtuple with three fields: `non_dupes_records`, `dupes_records`, `moved_dupes_records`. The `moved_dupes_files` path is stored separately from `location_for_moved_dupes` config. Cleanup only wipes the three record folders, never `moved_dupes_files`. Cleanup errors propagate up rather than being swallowed per-folder.
 
 **`DuplicationRecords.py`** — `DuplicationRecords` class. Core logic. For each folder, recursively walks files via `rglob("*")`, filters by extension and size, computes SHA-256 hash, then:
 

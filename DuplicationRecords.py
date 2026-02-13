@@ -8,9 +8,10 @@ from Configurations import Configurations
 
 class DuplicationRecords:
 
-    def __init__(self, paths, configs: Configurations):
+    def __init__(self, record_paths, moved_dupes_path: Path, configs: Configurations):
 
-        self.path_for_records = paths
+        self.path_for_records = record_paths
+        self.moved_dupes_path = moved_dupes_path
         self.configs = configs
 
     def _calculate_hash(self, filepath: Path) -> str:
@@ -110,7 +111,7 @@ class DuplicationRecords:
             else:
                 relative = Path(*parts[1:])
 
-            destination = self.path_for_records.moved_dupes_files / relative
+            destination = self.moved_dupes_path / relative
             destination.parent.mkdir(parents=True, exist_ok=True)
 
             logging.info(f'Moving duplicate file {file_path} to {destination}')
