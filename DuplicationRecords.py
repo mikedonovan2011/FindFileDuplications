@@ -39,7 +39,7 @@ class DuplicationRecords:
 
     def _skip_file(self, filepath: Path):
         if filepath.suffix not in self.configs.supported_file_types:
-            logging.debug(f'Skipping file (or dir) {filepath} because its type is not supported')
+            logging.debug(f'Skipping file (or dir) {filepath} because its type is not in the configuration')
             return True
     
         file_size = filepath.stat().st_size
