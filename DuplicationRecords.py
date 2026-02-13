@@ -55,9 +55,9 @@ class DuplicationRecords:
             logging.warning(e)
             return
         
-        record_file_dupes = self.path_for_records.dupes / record_filename
-        record_file_nondupes = self.path_for_records.non_dupes / record_filename
-        record_file_deleted = self.path_for_records.deleted_dupes / record_filename
+        record_file_dupes = self.path_for_records.dupes_records / record_filename
+        record_file_nondupes = self.path_for_records.non_dupes_records / record_filename
+        record_file_deleted = self.path_for_records.moved_dupes_records / record_filename
         
         if not self.configs.delete_duplicate_file:
 
@@ -110,7 +110,7 @@ class DuplicationRecords:
             else:
                 relative = Path(*parts[1:])
 
-            destination = self.path_for_records.moved_duplicates / relative
+            destination = self.path_for_records.moved_dupes_files / relative
             destination.parent.mkdir(parents=True, exist_ok=True)
 
             logging.info(f'Moving duplicate file {file_path} to {destination}')
