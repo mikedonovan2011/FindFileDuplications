@@ -1,5 +1,6 @@
 import hashlib
 import logging
+import shutil
 from pathlib import Path
 from collections import namedtuple
 from Configurations import Configurations
@@ -74,7 +75,19 @@ class DuplicationRecords:
             self._write_record(record_file_nondupes, file_path)
 
         else:
-            print("Not implemented yet, but this is where the deletion logic would go")
+            if record_file_deleted.exists():
+                logging.info(f'Multiple duplicates found, moving: {file_path}')
+                moved_to = self._move_duplicate_file(file_path)
+                self._write_delete_record(record_file_deleted, file_path, moved_to)
+                return
+
+            if record_file_nondupes.exists():
+                logging.info(f'Duplicate found, moving: {file_path}')
+                moved_to = self._move_duplicate_file(file_path)
+                self._write_delete_record(record_file_deleted, file_path, moved_to)
+                return
+
+            self._write_record(record_file_nondupes, file_path)
 
     @staticmethod
     def _write_record(record_file: Path, file: Path):
@@ -83,6 +96,37 @@ class DuplicationRecords:
             with record_file.open("a", encoding='utf-8') as f:
                 logging.debug(f'Recording info for {file} into file {record_file}')
                 f.write(str(file) + "\n")
+        except Exception as e:
+            logging.critical(f'Cannot write to {record_file}: {e}', exc_info=True)
+            raise RuntimeError(f'Cannot write to {record_file}: {e}') from e
+
+    def _move_duplicate_file(self, file_path: Path) -> Path:
+
+        try:
+            parts = file_path.parts
+            if file_path.drive:
+                drive_letter = file_path.drive.rstrip(':')
+                relative = Path(drive_letter, *parts[1:])
+            else:
+                relative = Path(*parts[1:])
+
+            destination = self.path_for_records.moved_duplicates / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+
+            logging.info(f'Moving duplicate file {file_path} to {destination}')
+            shutil.move(str(file_path), str(destination))
+            return destination
+        except Exception as e:
+            logging.critical(f'Cannot move duplicate file {file_path}: {e}', exc_info=True)
+            raise RuntimeError(f'Cannot move duplicate file {file_path}: {e}') from e
+
+    @staticmethod
+    def _write_delete_record(record_file: Path, original_path: Path, moved_path: Path):
+
+        try:
+            with record_file.open("a", encoding='utf-8') as f:
+                logging.debug(f'Recording deletion info for {original_path} into {record_file}')
+                f.write(f'{original_path} -> {moved_path}\n')
         except Exception as e:
             logging.critical(f'Cannot write to {record_file}: {e}', exc_info=True)
             raise RuntimeError(f'Cannot write to {record_file}: {e}') from e
