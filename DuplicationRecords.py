@@ -49,46 +49,54 @@ class DuplicationRecords:
         return True
        
     def _analyze_file(self, file_path: Path) -> None:
-        
+
         try:
             record_filename = self._calculate_hash(file_path) + ".txt"
         except RuntimeError as e:
             logging.warning(e)
             return
-        
+
+        if self.configs.delete_duplicate_file:
+            self._analyze_file_with_deletion(file_path, record_filename)
+        else:
+            self._analyze_file_without_deletion(file_path, record_filename)
+
+    def _analyze_file_without_deletion(self, file_path: Path, record_filename: str) -> None:
+
         record_file_dupes = self.path_for_records.dupes_records / record_filename
         record_file_nondupes = self.path_for_records.non_dupes_records / record_filename
+
+        if record_file_dupes.exists():
+            logging.info(f'Multiple duplicates found for: {file_path}')
+            self._write_record(record_file_dupes, file_path)
+            return
+
+        if record_file_nondupes.exists():
+            logging.info(f'One duplicate found for: {file_path}')
+            self._write_record(record_file_nondupes, file_path)
+            self._move_record_file(record_file_nondupes, record_file_dupes)
+            return
+
+        self._write_record(record_file_nondupes, file_path)
+
+    def _analyze_file_with_deletion(self, file_path: Path, record_filename: str) -> None:
+
+        record_file_nondupes = self.path_for_records.non_dupes_records / record_filename
         record_file_deleted = self.path_for_records.moved_dupes_records / record_filename
-        
-        if not self.configs.delete_duplicate_file:
 
-            if record_file_dupes.exists():
-                logging.info(f'Multiple duplicates found for: {file_path}')
-                self._write_record(record_file_dupes, file_path)
-                return
-            
-            if record_file_nondupes.exists():
-                logging.info(f'One duplicate found for: {file_path}')
-                self._write_record(record_file_nondupes, file_path)
-                self._move_record_file(record_file_nondupes, record_file_dupes)
-                return
+        if record_file_deleted.exists():
+            logging.info(f'Multiple duplicates found, moving: {file_path}')
+            moved_to = self._move_duplicate_file(file_path)
+            self._write_delete_record(record_file_deleted, file_path, moved_to)
+            return
 
-            self._write_record(record_file_nondupes, file_path)
+        if record_file_nondupes.exists():
+            logging.info(f'Duplicate found, moving: {file_path}')
+            moved_to = self._move_duplicate_file(file_path)
+            self._write_delete_record(record_file_deleted, file_path, moved_to)
+            return
 
-        else:
-            if record_file_deleted.exists():
-                logging.info(f'Multiple duplicates found, moving: {file_path}')
-                moved_to = self._move_duplicate_file(file_path)
-                self._write_delete_record(record_file_deleted, file_path, moved_to)
-                return
-
-            if record_file_nondupes.exists():
-                logging.info(f'Duplicate found, moving: {file_path}')
-                moved_to = self._move_duplicate_file(file_path)
-                self._write_delete_record(record_file_deleted, file_path, moved_to)
-                return
-
-            self._write_record(record_file_nondupes, file_path)
+        self._write_record(record_file_nondupes, file_path)
 
     @staticmethod
     def _write_record(record_file: Path, file: Path):
