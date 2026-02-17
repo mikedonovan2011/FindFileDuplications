@@ -46,15 +46,17 @@ Four modules with clear separation of concerns:
 
 *`_analyze_file_without_moving`* (`move_duplicate_file = no`):
 1. If hash record exists in `dupes_records/` — append path (3rd+ occurrence)
-2. If hash record exists in `non_dupes_records/` — append path, then move record to `dupes_records/` (2nd occurrence)
+2. If hash record exists in `non_dupes_records/` — move record to `dupes_records/`, then append path (2nd occurrence)
 3. Otherwise — create new record in `non_dupes_records/` (1st occurrence)
 
 *`_analyze_file_with_moving`* (`move_duplicate_file = yes`):
 1. If hash record exists in `moved_dupes_records/` — move file to `moved_dupes_files/`, append to record (3rd+ occurrence)
-2. If hash record exists in `non_dupes_records/` — move file to `moved_dupes_files/`, create record in `moved_dupes_records/` (2nd occurrence)
+2. If hash record exists in `non_dupes_records/` — move file to `moved_dupes_files/`, move record from `non_dupes_records/` to `moved_dupes_records/`, append move entry (2nd occurrence)
 3. Otherwise — keep file, create new record in `non_dupes_records/` (1st occurrence)
 
-Record files are named `{sha256_hash}.txt`. In normal mode they contain one file path per line. In move mode, `moved_dupes_records/` records use the format `{original_path} -> {moved_path}` per line. Moved files preserve their original directory structure under `moved_dupes_files/`.
+Both methods use "move then write" order for the 2nd occurrence: the record file is moved to its final folder before appending data.
+
+Record files are named `{sha256_hash}.txt`. In normal mode they contain one file path per line. In move mode, `moved_dupes_records/` records have the 1st occurrence path (plain) on line 1, followed by `{original_path} -> {moved_path}` lines for each moved duplicate. Moved files preserve their original directory structure under `moved_dupes_files/`.
 
 ## Error Handling
 

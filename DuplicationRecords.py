@@ -74,8 +74,8 @@ class DuplicationRecords:
 
         if record_file_nondupes.exists():
             logging.info(f'One duplicate found for: {file_path}')
-            self._write_record(record_file_nondupes, file_path)
             self._move_record_file(record_file_nondupes, record_file_dupes)
+            self._write_record(record_file_dupes, file_path)
             return
 
         self._write_record(record_file_nondupes, file_path)
@@ -94,6 +94,7 @@ class DuplicationRecords:
         if record_file_nondupes.exists():
             logging.info(f'Duplicate found, moving: {file_path}')
             moved_to = self._move_duplicate_file(file_path)
+            self._move_record_file(record_file_nondupes, record_file_moved)
             self._write_move_record(record_file_moved, file_path, moved_to)
             return
 

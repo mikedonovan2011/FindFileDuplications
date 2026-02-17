@@ -102,10 +102,10 @@ def test_second_occurrence_moved(tmp_path):
     dr = DuplicationRecords(folders, configs)
     dr.analyze_folder(scan_dir)
 
-    # One file kept, one moved
+    # Record moved from non_dupes to moved_dupes
     non_dupe_records = list(folders.record_folder_paths.non_dupes_records.glob("*.txt"))
     moved_records = list(folders.record_folder_paths.moved_dupes_records.glob("*.txt"))
-    assert len(non_dupe_records) == 1
+    assert len(non_dupe_records) == 0
     assert len(moved_records) == 1
 
     # Exactly one of the two source files should be gone
@@ -125,9 +125,9 @@ def test_third_occurrence_two_moved(tmp_path):
     moved_records = list(folders.record_folder_paths.moved_dupes_records.glob("*.txt"))
     assert len(moved_records) == 1
 
-    # moved_dupes_records record should have 2 lines (2nd and 3rd occurrence)
+    # moved_dupes_records record should have 3 lines (1st occurrence path + 2nd and 3rd move entries)
     lines = [l for l in moved_records[0].read_text(encoding='utf-8').splitlines() if l.strip()]
-    assert len(lines) == 2
+    assert len(lines) == 3
 
 
 def test_moved_file_exists_at_destination(tmp_path):
@@ -139,10 +139,10 @@ def test_moved_file_exists_at_destination(tmp_path):
     dr = DuplicationRecords(folders, configs)
     dr.analyze_folder(scan_dir)
 
-    # Parse the moved_dupes_records record to find the destination
+    # Parse the moved_dupes_records record; line 0 is the kept file, line 1 has the move entry
     moved_records = list(folders.record_folder_paths.moved_dupes_records.glob("*.txt"))
-    line = moved_records[0].read_text(encoding='utf-8').splitlines()[0]
-    _, destination = line.split(' -> ')
+    lines = moved_records[0].read_text(encoding='utf-8').splitlines()
+    _, destination = lines[1].split(' -> ')
 
     assert Path(destination).exists()
 
@@ -156,9 +156,10 @@ def test_moved_file_removed_from_source(tmp_path):
     dr = DuplicationRecords(folders, configs)
     dr.analyze_folder(scan_dir)
 
+    # Line 0 is the kept file, line 1 has the move entry
     moved_records = list(folders.record_folder_paths.moved_dupes_records.glob("*.txt"))
-    line = moved_records[0].read_text(encoding='utf-8').splitlines()[0]
-    original, _ = line.split(' -> ')
+    lines = moved_records[0].read_text(encoding='utf-8').splitlines()
+    original, _ = lines[1].split(' -> ')
 
     assert not Path(original).exists()
 
@@ -173,13 +174,11 @@ def test_moved_file_content_matches_original(tmp_path):
     dr = DuplicationRecords(folders, configs)
     dr.analyze_folder(scan_dir)
 
-    # Find which file was kept (the one that still exists)
-    non_dupe_record = list(folders.record_folder_paths.non_dupes_records.glob("*.txt"))[0]
-    kept_path = Path(non_dupe_record.read_text(encoding='utf-8').splitlines()[0])
-
-    # Find the moved file
-    deleted_record = list(folders.record_folder_paths.moved_dupes_records.glob("*.txt"))[0]
-    _, dest = deleted_record.read_text(encoding='utf-8').splitlines()[0].split(' -> ')
+    # Line 0 is the kept file path, line 1 has the move entry
+    moved_record = list(folders.record_folder_paths.moved_dupes_records.glob("*.txt"))[0]
+    lines = moved_record.read_text(encoding='utf-8').splitlines()
+    kept_path = Path(lines[0])
+    _, dest = lines[1].split(' -> ')
     moved_path = Path(dest)
 
     assert file_hash(kept_path) == file_hash(moved_path)
@@ -194,10 +193,12 @@ def test_record_format_contains_arrow(tmp_path):
     dr = DuplicationRecords(folders, configs)
     dr.analyze_folder(scan_dir)
 
+    # Line 0 is the kept file (plain path), subsequent lines have arrow format
     moved_records = list(folders.record_folder_paths.moved_dupes_records.glob("*.txt"))
-    for line in moved_records[0].read_text(encoding='utf-8').splitlines():
-        if line.strip():
-            assert ' -> ' in line
+    lines = [l for l in moved_records[0].read_text(encoding='utf-8').splitlines() if l.strip()]
+    assert ' -> ' not in lines[0]
+    for line in lines[1:]:
+        assert ' -> ' in line
 
 
 def test_dupes_folder_empty_in_move_mode(tmp_path):
@@ -225,10 +226,10 @@ def test_different_paths_same_filename_no_collision(tmp_path):
 
     # All moved files should exist at their destinations
     moved_records = list(folders.record_folder_paths.moved_dupes_records.glob("*.txt"))
-    for line in moved_records[0].read_text(encoding='utf-8').splitlines():
-        if line.strip():
-            _, dest = line.split(' -> ')
-            assert Path(dest).exists()
+    lines = [l for l in moved_records[0].read_text(encoding='utf-8').splitlines() if l.strip()]
+    for line in lines[1:]:
+        _, dest = line.split(' -> ')
+        assert Path(dest).exists()
 
 
 def test_move_disabled_does_not_move(tmp_path):
