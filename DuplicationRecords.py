@@ -4,14 +4,15 @@ import shutil
 from pathlib import Path
 from collections import namedtuple
 from Configurations import Configurations
+from FoldersForScanResults import FoldersForScanResults
 
 
 class DuplicationRecords:
 
-    def __init__(self, record_paths, moved_dupes_path: Path, configs: Configurations):
+    def __init__(self, folders: FoldersForScanResults, configs: Configurations):
 
-        self.path_for_records = record_paths
-        self.moved_dupes_path = moved_dupes_path
+        self.path_for_records = folders.record_folder_paths
+        self.moved_dupes_path = folders.moved_dupes_files_path
         self.configs = configs
 
     def _calculate_hash(self, filepath: Path) -> str:

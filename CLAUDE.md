@@ -42,7 +42,7 @@ Four modules with clear separation of concerns:
 
 **`FoldersForScanResults.py`** — `FoldersForScanResults` class. Manages the output directory structure. Uses a `RecordFolders` namedtuple with three fields: `non_dupes_records`, `dupes_records`, `moved_dupes_records`. The `moved_dupes_files` path is stored separately from `location_for_moved_dupes` config. Cleanup only wipes the three record folders, never `moved_dupes_files`. Cleanup errors propagate up rather than being swallowed per-folder.
 
-**`DuplicationRecords.py`** — `DuplicationRecords` class. Core logic. For each folder, recursively walks files via `rglob("*")`, filters by extension and size, computes SHA-256 hash, then dispatches to one of two mode-specific methods:
+**`DuplicationRecords.py`** — `DuplicationRecords` class. Constructor takes a `FoldersForScanResults` object and a `Configurations` object; it extracts record paths and moved-dupes path internally. Core logic: for each folder, recursively walks files via `rglob("*")`, filters by extension and size, computes SHA-256 hash, then dispatches to one of two mode-specific methods:
 
 *`_analyze_file_without_moving`* (`move_duplicate_file = no`):
 1. If hash record exists in `dupes_records/` — append path (3rd+ occurrence)
