@@ -68,10 +68,6 @@ class Configurations:
         return self.config['clean_up_previous_run'].getboolean('clean_up', True) 
     
     @property
-    def repair_records(self) -> bool:
-        return self.config['repair_records'].getboolean('repair', False)
-
-    @property
     def delete_duplicate_file(self) -> bool:
         return self.config['delete_duplicate_file'].getboolean('delete', False)
     

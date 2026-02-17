@@ -34,7 +34,7 @@ All runtime settings live in `config.ini` (loaded relative to `Configurations.py
 
 ## Architecture
 
-Five modules with clear separation of concerns:
+Four modules with clear separation of concerns:
 
 **`main.py`** — Entry point. Initializes logging, loads config, sets up output folders, then iterates `folders_to_scan` calling `DuplicationRecords.analyze_folder()` on each. All phases (config, folder setup, scan) are wrapped in try/except `RuntimeError` for graceful exit via `sys.exit()`.
 
@@ -56,8 +56,6 @@ Five modules with clear separation of concerns:
 
 Record files are named `{sha256_hash}.txt`. In normal mode they contain one file path per line. In delete mode, `moved_dupes_records/` records use the format `{original_path} -> {moved_path}` per line. Moved files preserve their original directory structure under `moved_dupes_files/`.
 
-**`RecordRepair.py`** — `RecordRepair` class. Self-healing integrity check that runs at startup when `clean_up_previous_run` is disabled. Scans `non_dupes_records/` records and fixes inconsistencies from interrupted previous runs: deletes empty records (0 lines) and moves stranded duplicates (2+ lines) to `dupes_records/`. Also cleans up empty records in `moved_dupes_records/`.
-
 ## Error Handling
 
-All errors in `DuplicationRecords` (`_write_record`, `_move_record_file`, `_move_duplicate_file`, `_write_delete_record`, `_calculate_hash`) and `RecordRepair` raise `RuntimeError` after logging. These propagate to `main()` which catches them and exits cleanly. The same pattern applies to config loading and folder setup.
+All errors in `DuplicationRecords` (`_write_record`, `_move_record_file`, `_move_duplicate_file`, `_write_delete_record`, `_calculate_hash`) raise `RuntimeError` after logging. These propagate to `main()` which catches them and exits cleanly. The same pattern applies to config loading and folder setup.

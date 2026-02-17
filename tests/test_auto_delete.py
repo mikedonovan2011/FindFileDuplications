@@ -9,8 +9,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 from Configurations import Configurations
 from FoldersForScanResults import FoldersForScanResults, RecordFolders
 from DuplicationRecords import DuplicationRecords
-from RecordRepair import RecordRepair
-
 
 def write_config(tmp_path, **overrides):
     values = {
@@ -18,7 +16,6 @@ def write_config(tmp_path, **overrides):
         'max_file_size': '1073741824',
         'min_file_size': '0',
         'clean_up': 'yes',
-        'repair': 'no',
         'delete': 'yes',
         'folders': str(tmp_path / 'scan'),
         'location': str(tmp_path / 'results'),
@@ -36,9 +33,6 @@ def write_config(tmp_path, **overrides):
 
         [clean_up_previous_run]
         clean_up = {values['clean_up']}
-
-        [repair_records]
-        repair = {values['repair']}
 
         [delete_duplicate_file]
         delete = {values['delete']}
@@ -254,32 +248,6 @@ def test_delete_off_does_not_move(tmp_path):
     # moved_dupes_files should be empty
     assert list(moved_dupes_path.rglob("*")) == []
 
-
-# --- RecordRepair tests ---
-
-def test_repair_cleans_empty_moved_dupes_record(tmp_path):
-    configs, record_paths, moved_dupes_path = setup_env(tmp_path)
-
-    # Create an empty record in moved_dupes_records
-    empty_record = record_paths.moved_dupes_records / 'fakehash.txt'
-    empty_record.write_text('', encoding='utf-8')
-
-    repair = RecordRepair(record_paths)
-    repair.repair()
-
-    assert not empty_record.exists()
-
-
-def test_repair_keeps_nonempty_moved_dupes_record(tmp_path):
-    configs, record_paths, moved_dupes_path = setup_env(tmp_path)
-
-    record = record_paths.moved_dupes_records / 'fakehash.txt'
-    record.write_text('C:\\orig.jpg -> C:\\dest.jpg\n', encoding='utf-8')
-
-    repair = RecordRepair(record_paths)
-    repair.repair()
-
-    assert record.exists()
 
 
 # --- FoldersForScanResults tests ---

@@ -19,7 +19,6 @@ def write_config(tmp_path, **overrides):
         'max_file_size': '1073741824',
         'min_file_size': '10240',
         'clean_up': 'yes',
-        'repair': 'no',
         'delete': 'no',
         'folders': str(tmp_path),
         'location': str(tmp_path / 'scan_results'),
@@ -36,9 +35,6 @@ def write_config(tmp_path, **overrides):
 
         [clean_up_previous_run]
         clean_up = {values['clean_up']}
-
-        [repair_records]
-        repair = {values['repair']}
 
         [delete_duplicate_file]
         delete = {values['delete']}
@@ -63,7 +59,6 @@ def test_valid_config_loads(tmp_path):
     assert cfg.max_file_size == 1073741824
     assert cfg.supported_file_types == ['.jpg', '.png']
     assert cfg.clean_up_previous_run is True
-    assert cfg.repair_records is False
     assert cfg.delete_duplicate_file is False
     assert cfg.folders_to_scan == [tmp_path.resolve()]
     assert cfg.location_for_scan_results == (tmp_path / 'scan_results').resolve()
@@ -119,8 +114,6 @@ def test_default_values(tmp_path):
 
         [clean_up_previous_run]
 
-        [repair_records]
-
         [delete_duplicate_file]
 
         [folders_to_scan]
@@ -136,7 +129,6 @@ def test_default_values(tmp_path):
     assert cfg.min_file_size == 0
     assert cfg.max_file_size == 1073741824
     assert cfg.clean_up_previous_run is True
-    assert cfg.repair_records is False
     assert cfg.delete_duplicate_file is False
     assert cfg.location_for_scan_results == Path('scan_results').resolve()
 
