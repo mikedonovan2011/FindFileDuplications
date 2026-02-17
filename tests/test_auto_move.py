@@ -16,7 +16,7 @@ def write_config(tmp_path, **overrides):
         'max_file_size': '1073741824',
         'min_file_size': '0',
         'clean_up': 'yes',
-        'delete': 'yes',
+        'move': 'yes',
         'folders': str(tmp_path / 'scan'),
         'location': str(tmp_path / 'results'),
         'moved_dupes_location': str(tmp_path / 'moved_dupes'),
@@ -34,8 +34,8 @@ def write_config(tmp_path, **overrides):
         [clean_up_previous_run]
         clean_up = {values['clean_up']}
 
-        [delete_duplicate_file]
-        delete = {values['delete']}
+        [move_duplicate_file]
+        move = {values['move']}
 
         [location_for_moved_dupes]
         location = {values['moved_dupes_location']}
@@ -74,7 +74,7 @@ def file_hash(file_path):
         return hashlib.file_digest(f, "sha256").hexdigest()
 
 
-# --- Delete-mode tests ---
+# --- Move-mode tests ---
 
 def test_first_occurrence_not_moved(tmp_path):
     configs, record_paths, moved_dupes_path = setup_env(tmp_path)
@@ -86,9 +86,9 @@ def test_first_occurrence_not_moved(tmp_path):
 
     # Record should exist in non_dupes_records, not in moved_dupes_records
     non_dupe_records = list(record_paths.non_dupes_records.glob("*.txt"))
-    deleted_records = list(record_paths.moved_dupes_records.glob("*.txt"))
+    moved_records = list(record_paths.moved_dupes_records.glob("*.txt"))
     assert len(non_dupe_records) == 1
-    assert len(deleted_records) == 0
+    assert len(moved_records) == 0
     # Original file should still exist
     assert (scan_dir / 'unique.jpg').exists()
 
@@ -104,9 +104,9 @@ def test_second_occurrence_moved(tmp_path):
 
     # One file kept, one moved
     non_dupe_records = list(record_paths.non_dupes_records.glob("*.txt"))
-    deleted_records = list(record_paths.moved_dupes_records.glob("*.txt"))
+    moved_records = list(record_paths.moved_dupes_records.glob("*.txt"))
     assert len(non_dupe_records) == 1
-    assert len(deleted_records) == 1
+    assert len(moved_records) == 1
 
     # Exactly one of the two source files should be gone
     assert file1.exists() != file2.exists()
@@ -122,11 +122,11 @@ def test_third_occurrence_two_moved(tmp_path):
     dr = DuplicationRecords(record_paths, moved_dupes_path, configs)
     dr.analyze_folder(scan_dir)
 
-    deleted_records = list(record_paths.moved_dupes_records.glob("*.txt"))
-    assert len(deleted_records) == 1
+    moved_records = list(record_paths.moved_dupes_records.glob("*.txt"))
+    assert len(moved_records) == 1
 
     # moved_dupes_records record should have 2 lines (2nd and 3rd occurrence)
-    lines = [l for l in deleted_records[0].read_text(encoding='utf-8').splitlines() if l.strip()]
+    lines = [l for l in moved_records[0].read_text(encoding='utf-8').splitlines() if l.strip()]
     assert len(lines) == 2
 
 
@@ -140,8 +140,8 @@ def test_moved_file_exists_at_destination(tmp_path):
     dr.analyze_folder(scan_dir)
 
     # Parse the moved_dupes_records record to find the destination
-    deleted_records = list(record_paths.moved_dupes_records.glob("*.txt"))
-    line = deleted_records[0].read_text(encoding='utf-8').splitlines()[0]
+    moved_records = list(record_paths.moved_dupes_records.glob("*.txt"))
+    line = moved_records[0].read_text(encoding='utf-8').splitlines()[0]
     _, destination = line.split(' -> ')
 
     assert Path(destination).exists()
@@ -156,8 +156,8 @@ def test_moved_file_removed_from_source(tmp_path):
     dr = DuplicationRecords(record_paths, moved_dupes_path, configs)
     dr.analyze_folder(scan_dir)
 
-    deleted_records = list(record_paths.moved_dupes_records.glob("*.txt"))
-    line = deleted_records[0].read_text(encoding='utf-8').splitlines()[0]
+    moved_records = list(record_paths.moved_dupes_records.glob("*.txt"))
+    line = moved_records[0].read_text(encoding='utf-8').splitlines()[0]
     original, _ = line.split(' -> ')
 
     assert not Path(original).exists()
@@ -194,13 +194,13 @@ def test_record_format_contains_arrow(tmp_path):
     dr = DuplicationRecords(record_paths, moved_dupes_path, configs)
     dr.analyze_folder(scan_dir)
 
-    deleted_records = list(record_paths.moved_dupes_records.glob("*.txt"))
-    for line in deleted_records[0].read_text(encoding='utf-8').splitlines():
+    moved_records = list(record_paths.moved_dupes_records.glob("*.txt"))
+    for line in moved_records[0].read_text(encoding='utf-8').splitlines():
         if line.strip():
             assert ' -> ' in line
 
 
-def test_dupes_folder_empty_in_delete_mode(tmp_path):
+def test_dupes_folder_empty_in_move_mode(tmp_path):
     configs, record_paths, moved_dupes_path = setup_env(tmp_path)
     scan_dir = tmp_path / 'scan'
     create_test_file(scan_dir / 'a', 'photo.jpg')
@@ -224,15 +224,15 @@ def test_different_paths_same_filename_no_collision(tmp_path):
     dr.analyze_folder(scan_dir)
 
     # All moved files should exist at their destinations
-    deleted_records = list(record_paths.moved_dupes_records.glob("*.txt"))
-    for line in deleted_records[0].read_text(encoding='utf-8').splitlines():
+    moved_records = list(record_paths.moved_dupes_records.glob("*.txt"))
+    for line in moved_records[0].read_text(encoding='utf-8').splitlines():
         if line.strip():
             _, dest = line.split(' -> ')
             assert Path(dest).exists()
 
 
-def test_delete_off_does_not_move(tmp_path):
-    configs, record_paths, moved_dupes_path = setup_env(tmp_path, delete='no')
+def test_move_disabled_does_not_move(tmp_path):
+    configs, record_paths, moved_dupes_path = setup_env(tmp_path, move='no')
     scan_dir = tmp_path / 'scan'
     file1 = create_test_file(scan_dir / 'a', 'photo.jpg')
     file2 = create_test_file(scan_dir / 'b', 'photo.jpg')

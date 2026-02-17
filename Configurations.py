@@ -68,8 +68,8 @@ class Configurations:
         return self.config['clean_up_previous_run'].getboolean('clean_up', True) 
     
     @property
-    def delete_duplicate_file(self) -> bool:
-        return self.config['delete_duplicate_file'].getboolean('delete', False)
+    def move_duplicate_file(self) -> bool:
+        return self.config['move_duplicate_file'].getboolean('move', False)
     
     @property
     def folders_to_scan(self) -> list[Path]:

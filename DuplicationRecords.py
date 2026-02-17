@@ -56,12 +56,12 @@ class DuplicationRecords:
             logging.warning(e)
             return
 
-        if self.configs.delete_duplicate_file:
-            self._analyze_file_with_deletion(file_path, record_filename)
+        if self.configs.move_duplicate_file:
+            self._analyze_file_with_moving(file_path, record_filename)
         else:
-            self._analyze_file_without_deletion(file_path, record_filename)
+            self._analyze_file_without_moving(file_path, record_filename)
 
-    def _analyze_file_without_deletion(self, file_path: Path, record_filename: str) -> None:
+    def _analyze_file_without_moving(self, file_path: Path, record_filename: str) -> None:
 
         record_file_dupes = self.path_for_records.dupes_records / record_filename
         record_file_nondupes = self.path_for_records.non_dupes_records / record_filename
@@ -79,21 +79,21 @@ class DuplicationRecords:
 
         self._write_record(record_file_nondupes, file_path)
 
-    def _analyze_file_with_deletion(self, file_path: Path, record_filename: str) -> None:
+    def _analyze_file_with_moving(self, file_path: Path, record_filename: str) -> None:
 
         record_file_nondupes = self.path_for_records.non_dupes_records / record_filename
-        record_file_deleted = self.path_for_records.moved_dupes_records / record_filename
+        record_file_moved = self.path_for_records.moved_dupes_records / record_filename
 
-        if record_file_deleted.exists():
+        if record_file_moved.exists():
             logging.info(f'Multiple duplicates found, moving: {file_path}')
             moved_to = self._move_duplicate_file(file_path)
-            self._write_delete_record(record_file_deleted, file_path, moved_to)
+            self._write_move_record(record_file_moved, file_path, moved_to)
             return
 
         if record_file_nondupes.exists():
             logging.info(f'Duplicate found, moving: {file_path}')
             moved_to = self._move_duplicate_file(file_path)
-            self._write_delete_record(record_file_deleted, file_path, moved_to)
+            self._write_move_record(record_file_moved, file_path, moved_to)
             return
 
         self._write_record(record_file_nondupes, file_path)
@@ -130,11 +130,11 @@ class DuplicationRecords:
             raise RuntimeError(f'Cannot move duplicate file {file_path}: {e}') from e
 
     @staticmethod
-    def _write_delete_record(record_file: Path, original_path: Path, moved_path: Path):
+    def _write_move_record(record_file: Path, original_path: Path, moved_path: Path):
 
         try:
             with record_file.open("a", encoding='utf-8') as f:
-                logging.debug(f'Recording deletion info for {original_path} into {record_file}')
+                logging.debug(f'Recording move info for {original_path} into {record_file}')
                 f.write(f'{original_path} -> {moved_path}\n')
         except Exception as e:
             logging.critical(f'Cannot write to {record_file}: {e}', exc_info=True)
