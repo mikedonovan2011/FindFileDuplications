@@ -66,6 +66,7 @@ def test_valid_config_loads(tmp_path):
     assert cfg.move_duplicate_file is False
     assert cfg.folders_to_scan == [tmp_path.resolve()]
     assert cfg.location_for_scan_results == (tmp_path / 'scan_results').resolve()
+    assert cfg.location_for_moved_dupes == (tmp_path / 'moved_dupes').resolve()
 
 
 def test_missing_section_raises(tmp_path):
@@ -177,6 +178,7 @@ def test_default_values(tmp_path):
     assert cfg.clean_up_previous_run is True
     assert cfg.move_duplicate_file is False
     assert cfg.location_for_scan_results == Path('scan_results').resolve()
+    assert cfg.location_for_moved_dupes == Path('moved_dupes_files').resolve()
 
 
 def test_clean_up_previous_run_bool(tmp_path):
