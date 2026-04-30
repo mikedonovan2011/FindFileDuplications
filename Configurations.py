@@ -63,11 +63,21 @@ class Configurations:
 
     @property
     def max_file_size(self) -> int:
-        return self.config['file_sizes'].getint('max_file_size', 1073741824)  # 1 GiB
-    
+        try:
+            return self.config['file_sizes'].getint('max_file_size', 1073741824)  # 1 GiB
+        except ValueError as e:
+            message = f'max_file_size must be an integer: {e}'
+            logging.critical(message)
+            raise RuntimeError(message) from e
+
     @property
     def min_file_size(self) -> int:
-        return self.config['file_sizes'].getint('min_file_size', 0)
+        try:
+            return self.config['file_sizes'].getint('min_file_size', 0)
+        except ValueError as e:
+            message = f'min_file_size must be an integer: {e}'
+            logging.critical(message)
+            raise RuntimeError(message) from e
     
     @property
     def supported_file_types(self) -> list[str]:

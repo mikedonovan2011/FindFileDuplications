@@ -131,6 +131,18 @@ def test_min_greater_than_max_raises(tmp_path):
         Configurations(config_file)
 
 
+def test_non_integer_min_file_size_raises(tmp_path):
+    config_file = write_config(tmp_path, min_file_size='abc')
+    with pytest.raises(RuntimeError, match='min_file_size must be an integer'):
+        Configurations(config_file)
+
+
+def test_non_integer_max_file_size_raises(tmp_path):
+    config_file = write_config(tmp_path, max_file_size='abc')
+    with pytest.raises(RuntimeError, match='max_file_size must be an integer'):
+        Configurations(config_file)
+
+
 def test_empty_folders_to_scan_raises(tmp_path):
     config_file = write_config(tmp_path, folders='')
     with pytest.raises(RuntimeError, match='No folders to scan'):
