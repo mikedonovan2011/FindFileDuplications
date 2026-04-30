@@ -22,6 +22,7 @@ def write_config(tmp_path, **overrides):
         'move': 'no',
         'folders': str(tmp_path),
         'location': str(tmp_path / 'scan_results'),
+        'moved_dupes_location': str(tmp_path / 'moved_dupes'),
     }
     values.update(overrides)
 
@@ -44,6 +45,9 @@ def write_config(tmp_path, **overrides):
 
         [location_for_scan_results]
         location = {values['location']}
+
+        [location_for_moved_dupes]
+        location = {values['moved_dupes_location']}
     """)
 
     config_file = tmp_path / 'config.ini'
@@ -62,6 +66,34 @@ def test_valid_config_loads(tmp_path):
     assert cfg.move_duplicate_file is False
     assert cfg.folders_to_scan == [tmp_path.resolve()]
     assert cfg.location_for_scan_results == (tmp_path / 'scan_results').resolve()
+
+
+def test_missing_section_raises(tmp_path):
+    config_text = textwrap.dedent(f"""\
+        [supported_files]
+        file_extensions = .jpg
+
+        [file_sizes]
+        max_file_size = 1073741824
+        min_file_size = 0
+
+        [clean_up_previous_run]
+        clean_up = yes
+
+        [move_duplicate_file]
+        move = no
+
+        [folders_to_scan]
+        folders = {tmp_path}
+
+        [location_for_scan_results]
+        location = {tmp_path / 'scan_results'}
+    """)
+    config_file = tmp_path / 'config.ini'
+    config_file.write_text(config_text, encoding='utf-8')
+
+    with pytest.raises(RuntimeError, match='Missing required config sections'):
+        Configurations(config_file)
 
 
 def test_missing_config_file_raises(tmp_path):
@@ -120,6 +152,8 @@ def test_default_values(tmp_path):
         folders = {tmp_path}
 
         [location_for_scan_results]
+
+        [location_for_moved_dupes]
     """)
     config_file = tmp_path / 'config.ini'
     config_file.write_text(config_text, encoding='utf-8')

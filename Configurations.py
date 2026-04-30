@@ -16,6 +16,7 @@ class Configurations:
         
         self.config = configparser.ConfigParser()
         self._load_config()
+        self._validate_sections()
         self._validate_file_sizes()
         self._validate_folders_to_scan()
 
@@ -27,6 +28,18 @@ class Configurations:
         except (OSError, configparser.ParsingError) as e:
             logging.critical(f'Failed to load configuration file {self.config_file}: {e}')
             raise RuntimeError(f'Configuration file {self.config_file} not readable') from e
+
+    def _validate_sections(self):
+        required = [
+            'file_sizes', 'supported_files', 'clean_up_previous_run',
+            'move_duplicate_file', 'folders_to_scan',
+            'location_for_scan_results', 'location_for_moved_dupes',
+        ]
+        missing = [s for s in required if s not in self.config]
+        if missing:
+            message = f'Missing required config sections: {", ".join(missing)}'
+            logging.critical(message)
+            raise RuntimeError(message)
 
     def _validate_file_sizes(self):
         if self.min_file_size < 0:
