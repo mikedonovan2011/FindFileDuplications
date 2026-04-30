@@ -46,6 +46,8 @@ class FoldersForScanResults:
 
     def _create_folders(self):
 
+        # Unpack the three RecordFolders namedtuple fields alongside moved_dupes_files
+        # so all four directories are created in one loop
         for path in (*self.record_folders, self.moved_dupes_files):
             Path.mkdir(path, exist_ok=True, parents=True)
             if not path.exists():

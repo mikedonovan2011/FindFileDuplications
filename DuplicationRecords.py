@@ -67,17 +67,20 @@ class DuplicationRecords:
         record_file_dupes = self.path_for_records.dupes_records / record_filename
         record_file_nondupes = self.path_for_records.non_dupes_records / record_filename
 
+        # 3rd+ occurrence: hash already in dupes_records, just append
         if record_file_dupes.exists():
             logging.info(f'Multiple duplicates found for: {file_path}')
             self._write_record(record_file_dupes, file_path)
             return
 
+        # 2nd occurrence: promote record from non_dupes to dupes, then append
         if record_file_nondupes.exists():
             logging.info(f'One duplicate found for: {file_path}')
             self._move_record_file(record_file_nondupes, record_file_dupes)
             self._write_record(record_file_dupes, file_path)
             return
 
+        # 1st occurrence: no record exists yet, create one in non_dupes
         self._write_record(record_file_nondupes, file_path)
 
     def _analyze_file_with_moving(self, file_path: Path, record_filename: str) -> None:
@@ -85,12 +88,14 @@ class DuplicationRecords:
         record_file_nondupes = self.path_for_records.non_dupes_records / record_filename
         record_file_moved = self.path_for_records.moved_dupes_records / record_filename
 
+        # 3rd+ occurrence: hash already in moved_dupes_records, move file and append
         if record_file_moved.exists():
             logging.info(f'Multiple duplicates found, moving: {file_path}')
             moved_to = self._move_duplicate_file(file_path)
             self._write_move_record(record_file_moved, file_path, moved_to)
             return
 
+        # 2nd occurrence: move the duplicate file, promote record to moved_dupes_records, append
         if record_file_nondupes.exists():
             logging.info(f'Duplicate found, moving: {file_path}')
             moved_to = self._move_duplicate_file(file_path)
@@ -98,6 +103,7 @@ class DuplicationRecords:
             self._write_move_record(record_file_moved, file_path, moved_to)
             return
 
+        # 1st occurrence: unique so far, keep file and record it in non_dupes
         self._write_record(record_file_nondupes, file_path)
 
     @staticmethod
@@ -115,6 +121,10 @@ class DuplicationRecords:
 
         try:
             parts = file_path.parts
+            # Reconstruct the absolute path as a relative one to preserve directory
+            # structure under moved_dupes_path. On Windows, parts[0] is the drive
+            # root (e.g. "C:\\"), so we strip the colon and use the letter as the
+            # first folder. On POSIX, parts[0] is "/" which we skip via parts[1:].
             if file_path.drive:
                 drive_letter = file_path.drive.rstrip(':')
                 relative = Path(drive_letter, *parts[1:])
