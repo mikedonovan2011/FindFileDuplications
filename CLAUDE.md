@@ -38,7 +38,7 @@ Four modules with clear separation of concerns:
 
 **`main.py`** — Entry point. Initializes logging, loads config, sets up output folders, then iterates `folders_to_scan` calling `DuplicationRecords.analyze_folder()` on each. All phases (config, folder setup, scan) are wrapped in try/except `RuntimeError` for graceful exit via `sys.exit()`.
 
-**`Configurations.py`** — `Configurations` class. Wraps `configparser` to read `config.ini`. Exposes all settings as typed properties (int, bool, list, Path). Resolves folder paths to absolute via `Path.resolve()`. Validates file size constraints at init.
+**`Configurations.py`** — `Configurations` class. Wraps `configparser` to read `config.ini`. Exposes all settings as typed properties (int, bool, list, Path). Resolves folder paths to absolute via `Path.resolve()`. Validates file size constraints at init. Note: the `[supported_files]` config section is exposed as the `supported_file_types` property.
 
 **`FoldersForScanResults.py`** — `FoldersForScanResults` class. Manages the output directory structure. Uses a `RecordFolders` namedtuple with three fields: `non_dupes_records`, `dupes_records`, `moved_dupes_records`. The `moved_dupes_files` path is stored separately from `location_for_moved_dupes` config. Cleanup only wipes the three record folders, never `moved_dupes_files`. Cleanup errors propagate up rather than being swallowed per-folder.
 

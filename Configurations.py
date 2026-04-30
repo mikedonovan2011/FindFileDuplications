@@ -19,6 +19,13 @@ class Configurations:
         self._validate_sections()
         self._validate_file_sizes()
         self._validate_folders_to_scan()
+        logging.debug(
+            'Config ready — folders: %s | results: %s | moved_dupes: %s | '
+            'min_size: %d | max_size: %d | clean_up: %s | move_dupes: %s',
+            self.folders_to_scan, self.location_for_scan_results,
+            self.location_for_moved_dupes, self.min_file_size, self.max_file_size,
+            self.clean_up_previous_run, self.move_duplicate_file,
+        )
 
     def _load_config(self):
         try:
@@ -101,11 +108,13 @@ class Configurations:
 
     @property
     def location_for_scan_results(self) -> Path:
-        location = self.config['location_for_scan_results'].get('location', 'scan_results')
+        default = str(Path(__file__).parent / 'scan_results')
+        location = self.config['location_for_scan_results'].get('location', default)
         return Path(location).resolve()
 
     @property
     def location_for_moved_dupes(self) -> Path:
-        location = self.config['location_for_moved_dupes'].get('location', 'moved_dupes_files')
+        default = str(Path(__file__).parent / 'moved_dupes_files')
+        location = self.config['location_for_moved_dupes'].get('location', default)
         return Path(location).resolve()
         
